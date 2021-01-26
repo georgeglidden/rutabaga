@@ -22,7 +22,7 @@ A similar project, rootviz, was created by nessig.github.io
 - generate a density map from a set of points
 - consistent or at least comprehensible color encoding(s) for density maps at arbitrary intervals
 - render the density map + encoding in a browser
-- find all real & complex roots to a  q-polynomial constrained over an or
+- find all real & complex roots to a  q-polynomial constrained over a rectangular interval
 - ... quickly enough to dynamically serve them to an arbitrary number of clients
 - ... efficiently enough to run on the browser
 - try webASM implementations of the root-finder
