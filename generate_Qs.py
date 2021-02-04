@@ -64,7 +64,6 @@ class PolynomialGenerator():
             stairs.append(child)
         return stairs
 
-
     def Q_new(self, alpha, gamma):
         """To find a new, unseen q polynomial. Automatically adds the resulting polynomial to Q_dict and returns the coordinate p/q """
         # Q(alpha +2 gamma) = (-1)^p x^q Q(alpha)
@@ -122,4 +121,4 @@ class PolynomialGenerator():
         df = pd.DataFrame(self.q_dict)
         df.to_csv(self.out_file)
 if __name__ == "__main__":
-    pg = PolynomialGenerator(max_integer=1, max_denominator=100, out_file='data/q_to_denom_100.csv')
+    pg = PolynomialGenerator(max_integer=1, max_denominator=10, out_file='data/q_to_denom_10.csv')
