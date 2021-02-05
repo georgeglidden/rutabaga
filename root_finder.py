@@ -73,5 +73,5 @@ class RootFinder():
 
 
 if __name__=='__main__':
-    rf = RootFinder(input_file='data/q_to_denom_50.csv', precision=50, maxsteps=1000)
+    rf = RootFinder(input_file='data/q_to_denom_30.csv', precision=50, maxsteps=1000)
     rf.generate_to('data/roots_50.csv')

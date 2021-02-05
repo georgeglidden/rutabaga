@@ -121,4 +121,4 @@ class PolynomialGenerator():
         df = pd.DataFrame(self.q_dict)
         df.to_csv(self.out_file)
 if __name__ == "__main__":
-    pg = PolynomialGenerator(max_integer=1, max_denominator=10, out_file='data/q_to_denom_10.csv')
+    pg = PolynomialGenerator(max_integer=1, max_denominator=30, out_file='data/q_to_denom_30.csv')
