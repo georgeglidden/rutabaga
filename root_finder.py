@@ -8,7 +8,7 @@ import numpy as np
 from tqdm import tqdm, trange
 from csv import writer
 class RootFinder():
-    def __init__(self, input_file=None, input_data=None, precision=100, maxsteps=100, batch_size=1000):
+    def __init__(self, input_file=None, input_data=None, precision=100, maxsteps=100, batch_size=100):
         """
         Initializes the rootfinder. Supply
         :param input_file: The path to a csv file containing polynomials of Q roots. Default: None.
@@ -51,16 +51,16 @@ class RootFinder():
             q = key.strip('][').split(',')[1]
             polly = self.pols[key].to_numpy()
             roots, error = self.generate_roots(polly)
-            print(roots)
+            # print(roots)
             for root in roots:
-                print(roots_list)
+                # print(roots_list)
                 roots_list = roots_list.append({'real':str(root.real),
                                    'imaginary':str(root.imag),
                                    'q':str(q),
                                    'error':str(error)
                                    }, ignore_index=True)
             if i % self.batch_size == 0:  # every batch_size iterations, save progress.
-                print("save triggered!")
+                # print("save triggered!")
                 if i == 0:
                     roots_list.to_csv(output_file) # create the file, if this is the first run.
                 else: # otherwise, append to the file and delete the existing roots from memory.
@@ -73,5 +73,5 @@ class RootFinder():
 
 
 if __name__=='__main__':
-    rf = RootFinder(input_file='data/q_to_denom_10.csv', precision=20)
-    rf.generate_to('data/roots_10.csv')
+    rf = RootFinder(input_file='data/q_to_denom_50.csv', precision=50, maxsteps=1000)
+    rf.generate_to('data/roots_50.csv')
