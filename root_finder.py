@@ -28,6 +28,7 @@ class RootFinder():
                 print("You need to specify either input_file or pass a dataframe as input_data")
                 raise Exception
             self.pols = input_data
+        self.didnotconverge = 0
     def generate_roots(self, polly):
         """
         Given a polynomial, cleans it up (removes leading zeros), and generates roots.
@@ -37,7 +38,11 @@ class RootFinder():
         # print(polly)
         if len(polly)<2: # no roots!
             return [], None
-        roots, error = mpmath.polyroots(polly, error=True, maxsteps=self.maxsteps)
+        try:
+            roots, error = mpmath.polyroots(polly, error=True, maxsteps=self.maxsteps)
+        except:
+            self.didnotconverge += 1
+            return [], None
         return roots, error
 
     def generate_to(self, output_file):
@@ -70,6 +75,7 @@ class RootFinder():
                     roots_list = pd.DataFrame(columns=['real', 'imaginary', 'q', 'error'])
         roots_list.to_csv(output_file, mode='a')
         print(roots_list)
+        print(f"{self.didnotconverge} didn't converge with max steps {self.maxsteps}")
 
 
 if __name__=='__main__':
