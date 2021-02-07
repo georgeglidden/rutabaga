@@ -205,9 +205,9 @@ def fractionline(n):   #fractions in (0,1/2) with denominator n.  Note that Q([q
     n=Integer(n)
     top=(n/2).ceil()
     L=[cleanpair([j,n]) for j in range(1,top) ]
-    return filter(lambda r: r.q==n ,L)
+    return list(filter(lambda r: r.q==n ,L))
 
 def longfractionline(n):   #fractions in (0,1) with denominator n.
     n=Integer(n)
     L=[cleanpair([j,n]) for j in range(1,n) ]
-    return filter(lambda r: r.q==n ,L)
+    return list(filter(lambda r: r.q==n ,L))
