@@ -70,14 +70,14 @@ class RootFinder():
                     roots_list.to_csv(output_file) # create the file, if this is the first run.
                 else: # otherwise, append to the file and delete the existing roots from memory.
                     # print("before deleting",roots_list)
-                    roots_list.to_csv(output_file, mode='a')
+                    roots_list.to_csv(output_file, mode='a', header=False)
                     del roots_list
                     roots_list = pd.DataFrame(columns=['real', 'imaginary', 'q', 'error'])
-        roots_list.to_csv(output_file, mode='a')
+        roots_list.to_csv(output_file, mode='a', header=False)
         print(roots_list)
         print(f"{self.didnotconverge} didn't converge with max steps {self.maxsteps}")
 
 
 if __name__=='__main__':
-    rf = RootFinder(input_file='data/q_to_denom_30.csv', precision=50, maxsteps=1000)
-    rf.generate_to('data/roots_50.csv')
+    rf = RootFinder(input_file='data/q_to_denom_30.csv', precision=10, maxsteps=100)
+    rf.generate_to('data/roots_30.csv')

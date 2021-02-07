@@ -6,15 +6,15 @@ import pandas as pd
 import time
 class PolynomialGenerator():
     def __init__(self, out_file = "q.csv", max_integer=1, max_denominator=10):
-        self.verbose = False
+        self.verbose = True
         self.out_file = out_file
         self.max_integer = max_integer
         self.max_denominator = max_denominator
         self.level_list = np.array([[0,1],[1,1]]) # the current level of the Farey graph is stored here for immediate computation of the next level. p/q is stored as [p,q]. We exclude 1/0 because it's only needed in the first stage
         self.q_dict = { # this is the great big fancy dictionary holding the keys to the q polynomials
-            '[0,1]' : np.array([0]), # polynomials are represented as lists of the coefficients, in inverse order: [c_n ... c_2, c_1]
+            '[0,1]' : np.array([1]), # polynomials are represented as lists of the coefficients, in inverse order: [c_n ... c_2, c_1]
             '[1,1]' : np.array([1]), # we use numpy arrays because you can add them to each other and multiply them by integers. It's all very nice.
-            '[1,0]' : np.array([1]),
+            '[1,0]' : np.array([0]),
             }
         # PART I: We have 0/1 and 1/1 -- but the user may specify some maximum integer larger than 1/1. This next bit computes those.
         max_in_level = 1
@@ -66,13 +66,14 @@ class PolynomialGenerator():
 
     def Q_new(self, alpha, gamma):
         """To find a new, unseen q polynomial. Automatically adds the resulting polynomial to Q_dict and returns the coordinate p/q """
-        # Q(alpha +2 gamma) = (-1)^p x^q Q(alpha)
+        # Q(alpha +2 gamma) = -(-1)^p x^q Q(alpha)
         self.print(f"Finding new polynomial from alpha {alpha} and gamma {gamma}")
         p_q = alpha+gamma*2
-        first_term = np.concatenate(((-1)**(p_q[0]+1) * self.Q(alpha),np.zeros(p_q[1], dtype=int)))
+        first_term = np.concatenate(((-1)**(gamma[0]+1) * self.Q(alpha),np.zeros(gamma[1], dtype=int)))
         second_term = self.poly_multiply(self.Q(alpha+gamma), self.Q(gamma))
-        # self.print(f"For {p_q}, We have first term {first_term} and second term {second_term}")
+        self.print(f"For {p_q}, We have first term {first_term} and second term {second_term}")
         result = self.poly_add(first_term,second_term)
+        self.print(f"For {p_q}, We have result {np.trim_zeros(result, trim='f')}")
         # add the polynomial, and the fraction, to the relevant internal lists.
         self.q_dict[self.array_to_str(p_q)] = np.trim_zeros(result, trim='f')
         # self.level_list = np.vstack([self.level_list, p_q])
@@ -121,4 +122,5 @@ class PolynomialGenerator():
         df = pd.DataFrame(self.q_dict)
         df.to_csv(self.out_file)
 if __name__ == "__main__":
-    pg = PolynomialGenerator(max_integer=1, max_denominator=30, out_file='data/q_to_denom_30.csv')
+    max_denom = 30
+    pg = PolynomialGenerator(max_integer=1, max_denominator=max_denom, out_file=f'data/q_to_denom_{max_denom}.csv')
