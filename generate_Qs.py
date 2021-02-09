@@ -6,7 +6,7 @@ import pandas as pd
 import time
 class PolynomialGenerator():
     def __init__(self, out_file = "q.csv", max_integer=1, max_denominator=10):
-        self.verbose = True
+        self.verbose = False
         self.out_file = out_file
         self.max_integer = max_integer
         self.max_denominator = max_denominator
@@ -122,5 +122,5 @@ class PolynomialGenerator():
         df = pd.DataFrame(self.q_dict)
         df.to_csv(self.out_file)
 if __name__ == "__main__":
-    max_denom = 30
+    max_denom = 130
     pg = PolynomialGenerator(max_integer=1, max_denominator=max_denom, out_file=f'data/q_to_denom_{max_denom}.csv')
