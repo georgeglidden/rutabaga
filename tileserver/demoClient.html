@@ -1,0 +1,21 @@
+<div id="openseadragon1" style="width: 512; height: 512;"></div>
+<script src="/openseadragon/openseadragon.min.js"></script>
+<script>
+  var viewer = OpenSeadragon({
+      id:            "openseadragon1",
+      prefixUrl:     "/openseadragon/images/",
+      navigatorSizeRatio: 0.25,
+      wrapHorizontal:     false,
+      tileSources: {
+        height: (2^16)*512,
+        width:  (2^16)*512,
+        tileSize: 512,
+        minLevel: 9,
+        getTileUrl: function( level, x, y ) {
+            return "http:/localhost:8080/" +
+                    "_l" + (level-10) + "_y" + y + "_x" + x +
+                    '.rut';
+        }
+      },
+  });
+</script>
