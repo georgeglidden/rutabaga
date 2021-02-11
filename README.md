@@ -3,6 +3,7 @@ _rutabaga_ is a web-based tool for visualizing the roots of polynomials with int
 
 ### Resources and Reference Material:
 - https://planetmath.org/sturmstheorem
+- https://jupyter.org/index.html
 
 ### Attributions and Further Reading:
 This project is part of ongoing work by students in Dr. Eric Chesebro's Undergraduate Research Group at the University of Montana.
@@ -18,11 +19,18 @@ Our aesthetic and programmatic inspiration came from the  beautiful images gener
 A similar project, rootviz, was created by nessig.github.io
 - https://github.com/nessig/rootviz
 
+This project makes use of the following libraries:
+- https://openseadragon.github.io/
+- https://mpmath.org/
+- https://tqdm.github.io/
+- https://scikit-image.org/
+- https://pandas.pydata.org/
+- https://www.scipy.org/
+- https://www.sagemath.org/
+
 ### To-Do:
-- generate a density map from a set of points
-- consistent or at least comprehensible color encoding(s) for density maps at arbitrary intervals
-- render the density map + encoding in a browser
+- fix quartering algorithm
+- support >4 layers resolution
+- dynamic color maps by resolution + sample density
 - find all real & complex roots to a  q-polynomial constrained over a rectangular interval
-- ... quickly enough to dynamically serve them to an arbitrary number of clients
-- ... efficiently enough to run on the browser
 - try webASM implementations of the root-finder
