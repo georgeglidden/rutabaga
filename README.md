@@ -1,5 +1,5 @@
 ## rutabaga
-_rutabaga_ is a web-based tool for visualizing the roots of polynomials with integer coefficients.
+_rutabaga_ is a web-based tool for visualizing solutions to polynomials with integer coefficients.
 
 ### Attributions and Further Reading:
 This project is part of ongoing work by students in Dr. Eric Chesebro's Undergraduate Research Group at the University of Montana.
