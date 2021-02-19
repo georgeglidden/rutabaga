@@ -1,21 +1,242 @@
-<div id="openseadragon1" style="width: 512; height: 512;"></div>
-<script src="/openseadragon/openseadragon.min.js"></script>
-<script>
-  var viewer = OpenSeadragon({
-      id:            "openseadragon1",
-      prefixUrl:     "/openseadragon/images/",
-      navigatorSizeRatio: 0.25,
-      wrapHorizontal:     false,
-      tileSources: {
-        height: (2^16)*512,
-        width:  (2^16)*512,
-        tileSize: 512,
-        minLevel: 9,
-        getTileUrl: function( level, x, y ) {
-            return "http:/localhost:8080/" +
-                    "_l" + (level-10) + "_y" + y + "_x" + x +
-                    '.rut';
-        }
-      },
-  });
-</script>
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="demoClient.css">
+    <title>rutabaga</title>
+  </head>
+  <body>
+    <div id="canvas-div">
+      <canvas width="800" height="800" id="viewer"></canvas>
+      <p>
+        pos: <span id="pos"></span>
+        <br/>
+        zoom: <span id="zoom"></span>
+        <br/>
+        tile: <span id="tile"></span>
+        <br/>
+        queried tiles: <span id="queries"></span>
+      </p>
+    </div>
+    <script type="text/javascript">
+
+class VRect {
+  constructor(){
+    this.left = 0;
+    this.right = 1;
+    this.top = 0;
+    this.bottom = 1;
+  }
+}
+
+class Viewer {
+  constructor(viewerId,tileSource,pyramid) {
+    this.tileSource = tileSource;
+    this.pyramid = pyramid;
+    this.canvas = document.getElementById(viewerId);
+    this.rect = document.getElementById(viewerId).getBoundingClientRect();
+    this.width = this.rect.right - this.rect.left;
+    this.height = this.rect.bottom - this.rect.top
+    if(this.width==this.height){
+      this.resolution = this.width / 2;
+    }
+    this.zoom = 0
+    this.zoomRect = new VRect();
+    this.zoomRect.left = 0;
+    this.zoomRect.right = this.width-1;
+    this.zoomRect.top = 0;
+    this.zoomRect.bottom = this.height-1;
+    console.log(`initialized Viewer ${viewerId} at ${this.rect.left},${this.rect.top}`)
+  }
+
+  getLocal(x,y) {
+    return [x - this.rect.left, y - this.rect.top];
+  }
+
+  inBounds(x,y) {
+    return ((0 <= x && x < this.width) && (0 <= y && y < this.height));
+  }
+
+  getZoomXOffset() {
+    return (this.width / (2**this.zoom));
+  }
+
+  getZoomYOffset() {
+    return (this.height / (2**this.zoom));
+  }
+
+  getZ() {
+    return Math.max(0,Math.floor(this.zoom));
+  }
+
+  getZoomRow(z,y) {
+    return Math.floor(((2**z)*y)/this.height);
+  }
+
+  getZoomCol(z,x) {
+    return Math.floor(((2**z)*x)/this.width);
+  }
+
+  getVisibleRows(z) {
+    const leftRow = this.getZoomRow(z,this.zoomRect.top);
+    const rightRow = this.getZoomRow(z,this.zoomRect.bottom);
+    //console.log(`visibleRows [${leftRow},${rightRow}]`);
+    return [...Array(rightRow - leftRow+2).keys()].map(i => i + leftRow - 1);
+  }
+
+  getVisibleCols(z) {
+    const leftCol = this.getZoomCol(z,this.zoomRect.left);
+    const rightCol = this.getZoomCol(z,this.zoomRect.right);
+    //console.log(`visibleCols [${leftCol},${rightCol}]`);
+    return [...Array(rightCol - leftCol+2).keys()].map(i => i + leftCol - 1);
+  }
+
+  getVisibleTiles(z) {
+    //console.log(z);
+    const rows = this.getVisibleRows(z);
+    const cols = this.getVisibleCols(z);
+    const tileCoords = [];
+    for(let i=0; i<rows.length; i+=1){
+      for(let j=0; j<rows.length; j+=1){
+        if(0 <= rows[i] && rows[i] < 2**z && 0 <= cols[j] && cols[j] <= 2**z)
+          tileCoords.push([rows[i], cols[j]])
+      }
+    }
+    return tileCoords;
+  }
+
+  drawTile(z,i,j,callback) {
+    const scaledWidth = this.resolution / (2**(z - this.zoom - 1));
+    const x = (i/(2**z))*this.width;
+    const dx = ((x - this.zoomRect.left)/this.getZoomXOffset()) * this.width;
+    const y = (j/(2**z))*this.height;
+    const dy = ((y - this.zoomRect.top)/this.getZoomYOffset()) * this.height;
+    const psqUrl = `${this.tileSource}/psq/${this.pyramid}/${z}_${j}_${i}_${this.resolution}`;
+    var tileImg = new Image();
+    tileImg.onload = function(){
+      callback(tileImg,dx,dy,scaledWidth);
+    };
+    tileImg.src = psqUrl;
+  }
+
+  drawVisibleTiles(){
+    const z = this.getZ();
+    const visible = this.getVisibleTiles(z);
+    for(let i=0; i<visible.length; i+=1){
+      const x = visible[i][0];
+      const y = visible[i][1];
+      const context = this.canvas.getContext("2d");
+      this.drawTile(z,x,y,function(img,x,y,w){
+        context.drawImage(img, x, y, w, w);
+      });
+    }
+  }
+
+  doZoom(x,y,zvel) {
+    x = (x/this.width)*this.getZoomXOffset() + this.zoomRect.left;
+    y = (y/this.height)*this.getZoomYOffset() + this.zoomRect.top;
+    this.zoom += zvel;
+    if(this.zoom > 0){
+      const zX = (this.zoomRect.left+this.zoomRect.right)/2;
+      const zY = (this.zoomRect.top+this.zoomRect.bottom)/2;
+      const zoomWidth = this.width / (2**this.zoom);
+      const zoomHeight = this.height / (2**this.zoom);
+      this.zoomRect.left = zX - (zoomWidth/2);
+      this.zoomRect.right = zX + (zoomWidth/2);
+      this.zoomRect.top = zY - (zoomHeight/2);
+      this.zoomRect.bottom = zY + (zoomHeight/2);
+    }
+    else{
+      this.zoom = 0;
+    }
+  }
+
+  doPan(xvel,yvel) {
+    this.zoomRect.left += xvel/(this.getZ()+1);
+    this.zoomRect.right += xvel/(this.getZ()+1);
+    this.zoomRect.top += yvel/(this.getZ()+1);
+    this.zoomRect.bottom += yvel/(this.getZ()+1);
+  }
+
+  correctZoomRect() {
+    if(this.zoomRect.left < 0){
+      const xCorrection = -this.zoomRect.left;
+      this.zoomRect.left += xCorrection;
+      this.zoomRect.right += xCorrection;
+    }
+    if(this.zoomRect.right >= this.width){
+      const xCorrection = this.width - this.zoomRect.right;
+      this.zoomRect.left += xCorrection;
+      this.zoomRect.right += xCorrection;
+    }
+    if(this.zoomRect.top < 0){
+      const yCorrection = -this.zoomRect.top;
+      this.zoomRect.top += yCorrection;
+      this.zoomRect.bottom += yCorrection;
+    }
+    if(this.zoomRect.bottom >= this.height){
+      const yCorrection = this.height - this.zoomRect.bottom;
+      this.zoomRect.top += yCorrection;
+      this.zoomRect.bottom += yCorrection;
+    }
+  }
+
+  drawDummy() {
+    var context = this.canvas.getContext("2d");
+    context.beginPath();
+    context.fillStyle = "white";
+    context.rect(0,0,this.width,this.height);
+    context.fill();
+    context.beginPath();
+    context.lineWidth = "1";
+    context.strokeStyle = "red";
+    context.rect(this.zoomRect.left,this.zoomRect.top,this.getZoomXOffset(),this.getZoomYOffset());
+    context.stroke();
+  }
+}
+
+function updateZoomDisplay(viewer){
+  const z = viewer.getZ();
+  const z1 = z + 1;
+  document.getElementById("zoom").textContent = `${viewer.zoom} (${Math.floor(viewer.zoomRect.left)},${Math.floor(viewer.zoomRect.top)} ${Math.floor(viewer.zoomRect.right)},${Math.floor(viewer.zoomRect.bottom)}) ${Math.floor(viewer.zoomRect.right) - Math.floor(viewer.zoomRect.left)} ${Math.floor(viewer.zoomRect.bottom) - Math.floor(viewer.zoomRect.top)}`;
+  document.getElementById("tile").textContent = `(${viewer.getZoomCol(z,viewer.zoomRect.left)},${viewer.getZoomRow(z,viewer.zoomRect.top)})z${z}: ${viewer.getVisibleTiles(z).length} z${z1}: ${viewer.getVisibleTiles(z1).length}`;
+  document.getElementById("queries").textContent = `${viewer.getVisibleTiles(z1)}`
+}
+
+viewer = new Viewer("viewer", "http://localhost:8080", "zoomed_pyramid");
+posDisplay = document.getElementById("pos");
+zoomDisplay = document.getElementById("zoom");
+let inBounds = false;
+let relX = 0;
+let relY = 0;
+posDisplay.textContent = `${relX},${relY}`;
+viewer.drawVisibleTiles();
+window.addEventListener("mousemove", function(e){
+  const x = e.clientX;
+  const y = e.clientY;
+  const relPos = viewer.getLocal(x,y);
+  relX = relPos[0];
+  relY = relPos[1];
+  inBounds = viewer.inBounds(relX,relY);
+  posDisplay.textContent = `${relX},${relY} ${inBounds}`;
+  if(e.buttons%2 == 1){
+    xvel = -e.movementX;
+    yvel = -e.movementY;
+    viewer.doPan(xvel,yvel);
+    viewer.correctZoomRect();
+    viewer.drawVisibleTiles();
+
+  }
+  updateZoomDisplay(viewer,zoomDisplay);
+});
+window.addEventListener("wheel", function(w){
+  if(viewer.inBounds(relX,relY)){
+    viewer.doZoom(relX,relY,-w.deltaY/50);
+    viewer.correctZoomRect();
+    viewer.drawVisibleTiles();
+    updateZoomDisplay(viewer,zoomDisplay);
+  }
+});
+    </script>
+  </body>
+</html>

@@ -26,7 +26,7 @@ class Tile:
             self.points = pointset
         self.xvals,self.yvals = list(zip(*self.points)) # unzip pointset
         if fitted_rect == None:
-            fitted_rect = [min(xvals),max(xvals),min(yvals),max(yvals)]
+            fitted_rect = [min(self.xvals),max(self.xvals),min(self.yvals),max(self.yvals)]
         self.fitted_rect = fitted_rect
         self.xbounds,self.ybounds = list(zip(*rect_bounds)) # unzip bound set
         self._density_map = None
