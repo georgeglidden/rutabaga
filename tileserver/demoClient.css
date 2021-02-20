@@ -1,0 +1,13 @@
+html,body {
+  margin: 0px;
+  border: 0px;
+  padding: 0px;
+  background-color: #202029;
+  color: #ffeecc;
+}
+#canvas-div {
+  text-align: center;
+}
+canvas {
+  background-color: #ffffff;
+}
