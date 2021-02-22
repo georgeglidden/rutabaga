@@ -81,5 +81,5 @@ class RootFinder():
 
 if __name__=='__main__':
     max_denom = 100
-    rf = RootFinder(input_file=f'data/q_to_denom_{max_denom}.csv', precision=10, maxsteps=200)
-    rf.generate_to(f'data/roots_{max_denom}.csv')
+    rf = RootFinder(input_file=f'data/discriminants_to_denom_30.csv', precision=10, maxsteps=200)
+    rf.generate_to(f'data/discriminant_roots_{max_denom}.csv')

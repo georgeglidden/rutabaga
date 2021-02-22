@@ -60,7 +60,10 @@ class PolynomialGenerator():
         while stairs[-1][1] < self.max_denominator:
             grandma = self.array_subtract(stairs[-1], dad)
             child = self.Q_new(grandma,dad)
-            stairs.append(child)
+            if child:
+                stairs.append(child)
+            else:
+                break
             print(child)
         return stairs
 
@@ -68,6 +71,10 @@ class PolynomialGenerator():
         """To find a new, unseen q polynomial. Automatically adds the resulting polynomial to Q_dict and returns the coordinate p/q """
         # Q(alpha +2 gamma) = -dQ(gamma) Q (alpha) + ... =-(-1)^gamma[0] x^gamma[1] * Q(alpha) + ...
         p_q = self.array_add(alpha, self.multiply_by_constant(gamma, 2))
+        if p_q[0]/p_q[1] > 0.5:
+            # don't bother adding polynomials above this symmetry
+            self.print(f"{p_q} exceeds 1/2. Skipping to save time, since it is symmetric to its mirror over 1/2.")
+            return None
         self.print(f"Finding new polynomial {p_q} from alpha {alpha} and gamma {gamma}")
         # first_term = np.concatenate(((-1)**(gamma[0]+1) * self.Q(alpha),np.zeros(gamma[1], dtype=int)))
         first_term = self.multiply_by_constant(self.Q(alpha),(-1)**(gamma[0]+1)) + [0]*gamma[1]
@@ -170,5 +177,5 @@ class PolynomialGenerator():
         df = pd.DataFrame(self.q_dict)
         df.to_csv(self.out_file)
 if __name__ == "__main__":
-    max_denom = 100
+    max_denom = 200
     pg = PolynomialGenerator(max_integer=1, max_denominator=max_denom, out_file=f'data/q_to_denom_{max_denom}.csv')
