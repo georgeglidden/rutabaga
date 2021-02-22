@@ -97,9 +97,9 @@ class Viewer {
     const cols = this.getVisibleCols(z);
     const tileCoords = [];
     for(let i=0; i<rows.length; i+=1){
-      for(let j=0; j<rows.length; j+=1){
-        if(0 <= rows[i] && rows[i] < 2**z && 0 <= cols[j] && cols[j] <= 2**z)
-          tileCoords.push([rows[i], cols[j]])
+      for(let j=0; j<cols.length; j+=1){
+        if(0 <= rows[i] && rows[i] < 2**z && 0 <= cols[j] && cols[j] < 2**z)
+          tileCoords.push([cols[j],rows[i]])
       }
     }
     return tileCoords;
@@ -111,7 +111,7 @@ class Viewer {
     const dx = ((x - this.zoomRect.left)/this.getZoomXOffset()) * this.width;
     const y = (j/(2**z))*this.height;
     const dy = ((y - this.zoomRect.top)/this.getZoomYOffset()) * this.height;
-    const psqUrl = `${this.tileSource}/psq/${this.pyramid}/${z}_${j}_${i}_${this.resolution}`;
+    const psqUrl = `${this.tileSource}/psq/${this.pyramid}/${z}_${i}_${j}_${this.resolution}`;
     var tileImg = new Image();
     tileImg.onload = function(){
       callback(tileImg,dx,dy,scaledWidth);
@@ -152,10 +152,10 @@ class Viewer {
   }
 
   doPan(xvel,yvel) {
-    this.zoomRect.left += xvel/(this.getZ()+1);
-    this.zoomRect.right += xvel/(this.getZ()+1);
-    this.zoomRect.top += yvel/(this.getZ()+1);
-    this.zoomRect.bottom += yvel/(this.getZ()+1);
+    this.zoomRect.left += xvel/((this.zoom+1)**2);
+    this.zoomRect.right += xvel/((this.zoom+1)**2);
+    this.zoomRect.top += yvel/((this.zoom+1)**2);
+    this.zoomRect.bottom += yvel/((this.zoom+1)**2);
   }
 
   correctZoomRect() {
