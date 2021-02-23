@@ -152,10 +152,10 @@ class Viewer {
   }
 
   doPan(xvel,yvel) {
-    this.zoomRect.left += xvel/((this.zoom+1)**2);
-    this.zoomRect.right += xvel/((this.zoom+1)**2);
-    this.zoomRect.top += yvel/((this.zoom+1)**2);
-    this.zoomRect.bottom += yvel/((this.zoom+1)**2);
+    this.zoomRect.left += xvel/(2**this.zoom);
+    this.zoomRect.right += xvel/(2**this.zoom);
+    this.zoomRect.top += yvel/(2**this.zoom);
+    this.zoomRect.bottom += yvel/(2**this.zoom);
   }
 
   correctZoomRect() {

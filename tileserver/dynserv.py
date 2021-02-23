@@ -10,7 +10,7 @@ class DynamicTileserver(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/':
-            self.path = '/index.html'
+            self.path = '/demoClient.html'
         try:
             request = self.path.split('/')
             print(self.path)
@@ -39,6 +39,6 @@ class DynamicTileserver(BaseHTTPRequestHandler):
             self.wfile.write(bytes(file_to_open, 'utf-8'))
             raise e
 
-impyr.init_point_sources(['../data/roots_100.csv'],['zoomed_pyramid'],(-1,1,-1,1))
+impyr.init_point_sources(['../data/roots_100.csv'],['zoomed_pyramid'],(-17000,17000,-17000,17000))
 httpd = HTTPServer(('localhost', 8080), DynamicTileserver)
 httpd.serve_forever()

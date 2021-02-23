@@ -9,7 +9,7 @@ class Serv(BaseHTTPRequestHandler):
 
     def do_GET(self):
         if self.path == '/':
-            self.path = '/index.html'
+            self.path = '/demoClient.html'
         try:
             request = self.path.split('/')
             print(self.path)
