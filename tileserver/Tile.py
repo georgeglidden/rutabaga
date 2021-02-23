@@ -1,6 +1,5 @@
-# generate tiles from pyramid
-from numpy import histogram2d
-from json import dump,load
+from numpy import histogram2d, max as np_max, min as np_min
+from json import dump as json_dump, load as json_load
 from os import path
 
 class TileQuery:
@@ -30,10 +29,16 @@ class Tile:
         self.fitted_rect = fitted_rect
         self.xbounds,self.ybounds = list(zip(*rect_bounds)) # unzip bound set
         self._density_map = None
+        print(f'initialized Tile with {len(self.points)} points\n\tbounded by {self.rect}\n\tand spanning {self.fitted_rect}')
 
     def density_map(self):
         if self._density_map == None:
             self._density_map, _, __ = histogram2d(self.xvals+self.xbounds,self.yvals+self.ybounds,self.width)
+            # remove corner markers
+            self._density_map[0,0] -= 1
+            self._density_map[-1,0] -= 1
+            self._density_map[0,-1] -= 1
+            self._density_map[-1,-1] -= 1
         return self._density_map
 
     # the pointset is saved rather than the density map to prevent a storage req. explosion:
@@ -42,18 +47,18 @@ class Tile:
     def save(self, pyramid_directory, path_to_tile=None):
         if path_to_tile == None:
             l,i,j = self.pos
-            path_to_tile = path.join(pyramid_directory, f'tile_z{l}_x{i}_y{j}.json')
+            path_to_tile = path.join(pyramid_directory, f'z{l}', f'x{i}_y{j}.tile')
         tile_dict = dict()
         tile_dict['id'] = self.id
         tile_dict['pos'] = self.pos
         tile_dict['rect'] = self.rect
         tile_dict['fitted_rect'] = self.fitted_rect
         tile_dict['points'] = self.points
-        dump(tile_dict, open(path_to_tile, 'w'))
+        json_dump(tile_dict, open(path_to_tile, 'w'))
 
     @classmethod
     def load(cls, path_to_tile, width=100):
-        tile_dict = load(open(path_to_tile, 'r'))
+        tile_dict = json_load(open(path_to_tile, 'r'))
         return cls(tile_dict['id'], tile_dict['pos'], tile_dict['points'], tile_dict['rect'],
                    fitted_rect=tile_dict['fitted_rect'], width=width)
 
@@ -61,5 +66,5 @@ class Tile:
     def from_query(cls, pyramid_directory, query):
         l,i,j = query.coordinates
         width = query.resolution
-        path_to_file = path.join(pyramid_directory, f'tile_z{l}_x{i}_y{j}.json')
+        path_to_file = path.join(pyramid_directory, f'z{l}', f'x{i}_y{j}.tile')
         return cls.load(path_to_file, width=width)
