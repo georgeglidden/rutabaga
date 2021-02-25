@@ -23,9 +23,13 @@ This project makes use of the following libraries:
 - https://pandas.pydata.org/
 - https://www.scipy.org/
 - https://www.sagemath.org/
-- https://openseadragon.github.io/
 
 ### To-Do:
-- fix pyramids.ipynb (why does it skip columns on z>2?)
-- dynamic color maps by resolution + sample density
-- try webASM implementations of the root-finder
+* develop client UX!
+- integrate multiple tile sources
+- adjustable color maps
+- contour detection
+- blob detection
+* serve multi-channel images 
+* serve queries for tile and pyramid metadata
+* try webASM implementations of the root-finder
