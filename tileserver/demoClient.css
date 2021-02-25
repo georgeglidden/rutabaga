@@ -8,6 +8,13 @@ html,body {
 #canvas-div {
   text-align: center;
 }
+#canvas-div canvas {
+  display: inline-block;
+}
+#canvas-div #viewer-ui {
+  display: inline-block;
+  text-align: right;
+}
 canvas {
   background-color: #ffffff;
 }
