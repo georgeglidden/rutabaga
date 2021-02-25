@@ -16,16 +16,16 @@ class DynamicTileserver(BaseHTTPRequestHandler):
             print(self.path)
             print(request)
             if len(request) == 4 and request[1] == 'psq':
-                    pyr_dir = request[2]
-                    z,x,y,w = request[3].split('_')
-                    z,x,y,w = int(z),int(x),int(y),int(w)
-                    tq = TileQuery((z,x,y),w)
-                    tile = impyr.do_query(pyr_dir, tq)
-                    imsave('.dmap.png', tile.density_map())
-                    self.send_response(200)
-                    self.send_header('Content-type', 'image/png')
-                    self.end_headers()
-                    self.wfile.write(open('.dmap.png', 'rb').read())
+                pyr_dir = request[2]
+                z,x,y,w = request[3].split('_')
+                z,x,y,w = int(z),int(x),int(y),int(w)
+                tq = TileQuery((z,x,y),w)
+                tile = impyr.do_query(pyr_dir, tq)
+                imsave('.dmap.png', tile.density_map())
+                self.send_response(200)
+                self.send_header('Content-type', 'image/png')
+                self.end_headers()
+                self.wfile.write(open('.dmap.png', 'rb').read())
             else:
                 file_to_open = open(self.path[1:]).read()
                 print(file_to_open)

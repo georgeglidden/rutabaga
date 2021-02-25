@@ -33,12 +33,10 @@ class Tile:
 
     def density_map(self):
         if self._density_map == None:
-            self._density_map, _, __ = histogram2d(self.xvals+self.xbounds,self.yvals+self.ybounds,self.width)
+            self._density_map, _, __ = histogram2d(self.xvals+self.xbounds,self.yvals+self.ybounds,self.width+1)
             # remove corner markers
             self._density_map[0,0] -= 1
-            self._density_map[-1,0] -= 1
-            self._density_map[0,-1] -= 1
-            self._density_map[-1,-1] -= 1
+            self._density_map = self._density_map[:self.width,:self.width]
         return self._density_map
 
     # the pointset is saved rather than the density map to prevent a storage req. explosion:
