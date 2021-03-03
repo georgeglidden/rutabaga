@@ -6,6 +6,12 @@ The `/tileserver` folder contains a server+client web application for viewing th
 
 If you want more direct access to the data, the Jupyter notebooks in the top-level directory provide tools for generating and analyzing several objects of interest.
 
+### How to Use Rutabaga
+- run generate_Qs.py to make csv of the Q polynomials
+- run rootfinder.py to make a csv of the roots for each polynomial
+- run the server to visualize the pattern of the roots (instructions on running the server will be added soon)
+
+
 ### Attributions and Further Reading:
 This project is part of ongoing work by students in Dr. Eric Chesebro's Undergraduate Research Group at the University of Montana.
 - http://www.umt.edu/people/chesebro
