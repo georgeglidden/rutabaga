@@ -9,7 +9,12 @@ If you want more direct access to the data, the Jupyter notebooks in the top-lev
 ### How to Use Rutabaga
 - run generate_Qs.py to make csv of the Q polynomials
 - run rootfinder.py to make a csv of the roots for each polynomial
-- run the server to visualize the pattern of the roots (instructions on running the server will be added soon)
+- run the server to visualize the pattern of the roots:
+  1. Update the repository to the latest version with git pull
+  2. On a command line, cd into the tileserver directory (or open up the directory in PyCharm)
+  3. Run python dynserve.py. (Or run the "dynserv.py" file from within PyCharm)
+  4. Open the file called "demoClient.html" with a web-browser (it's also in the tileserver directory of the repository; just click on it, and the webpage should come up.)
+  It really looks marvelous.
 
 
 ### Attributions and Further Reading:
