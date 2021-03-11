@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/rutabaga.iml" filepath="$PROJECT_DIR$/.idea/rutabaga.iml" />
-      <module fileurl="file://$PROJECT_DIR$/../LEGSNet/.idea/trainable_scattering.iml" filepath="$PROJECT_DIR$/../LEGSNet/.idea/trainable_scattering.iml" />
     </modules>
   </component>
 </project>

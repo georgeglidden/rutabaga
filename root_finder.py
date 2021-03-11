@@ -29,11 +29,17 @@ class RootFinder():
                 raise Exception
             self.pols = input_data
         self.didnotconverge = 0
+        self.input_data = None
+        if input_data:
+            self.input_data = pd.read_csv(input_data)
     def generate_roots(self, polly):
         """
         Given a polynomial, cleans it up (removes leading zeros), and generates roots.
         Returns roots as list of tuples
         """
+        # first, see if this root has been calculated before
+        prevcal = self.input_data.loc[(self.input_data['p'] == int(p)) & (self.input_data['q'] == int(q))]
+
         polly = np.trim_zeros(polly)
         # print(polly)
         if len(polly)<2: # no roots!
@@ -43,6 +49,8 @@ class RootFinder():
         except:
             self.didnotconverge += 1
             return []
+        # reorganize the roots into [[real,imag]...]
+        roots = [[str(r.real),str(r.imag)] for r in roots]
         return roots
 
     def generate_to(self, output_file):
@@ -56,7 +64,7 @@ class RootFinder():
             p = key.strip('][').split(',')[0]
             q = key.strip('][').split(',')[1]
             polly = self.pols[key].to_numpy()
-            roots = self.generate_roots(polly)
+            roots = self.generate_roots(polly,p,q)
             # print(roots)
             for root in roots:
                 # print(roots_list)
@@ -81,5 +89,5 @@ class RootFinder():
 
 if __name__=='__main__':
     max_denom = 100
-    rf = RootFinder(input_file=f'data/q_to_denom_200.csv', precision=10, maxsteps=200)
+    rf = RootFinder(input_file=f'data/q_to_denom_200.csv', input_data='data/roots_200.csv', precision=10, maxsteps=200)
     rf.generate_to(f'data/discriminant_roots_{max_denom}.csv')

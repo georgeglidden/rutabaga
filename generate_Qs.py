@@ -3,6 +3,7 @@ This module generates all Q polynomials Q(m/n) for n <= supplied max.
 """
 import pandas as pd
 import time
+import pickle
 class PolynomialGenerator():
     def __init__(self, out_file = "q.csv", max_integer=1, max_denominator=10):
         self.verbose = True
@@ -15,6 +16,16 @@ class PolynomialGenerator():
             '[1,1]' : [1], # numpy can't handle our larger coefficients, so we handle all of the coefficients as python integers (which have unlimited precision) ~~we use numpy arrays because you can add them to each other and multiply them by integers. It's all very nice.~~
             '[1,0]' : [0],
             }
+        self.q_levels = { # holds the number of q recursion steps needed to get to each polynomial
+            '[0,1]': 1,
+            '[1,1]': 1,
+            '[1,0]': 1,
+        }
+        self.q_gammas = {  # holds the gamma at the end of the triangle towards which this polynomial stepped.
+            '[0,1]': [0,0],
+            '[1,1]': [0,0],
+            '[1,0]': [0,0],
+        }
         # PART I: We have 0/1 and 1/1 -- but the user may specify some maximum integer larger than 1/1. This next bit computes those.
         max_in_level = 1
         while max_in_level < self.max_integer: # as long as the largest numerator (with denom of 1) is less than max_integer
@@ -51,6 +62,11 @@ class PolynomialGenerator():
         # PART III: The polynomials have now been generated. All that remains is to cache them safely in the heart of a live volcano, i.e. a csv file, or not, if you're calling it directly
         if out_file:
             self.save_to_csv()
+            # try:
+            #     self.save_to_csv()
+            # except:
+            #     print("csv save failed. Making pyc file instead.")
+            #     pickle.dump(self.q_dict,open(out_file,'wb'))
             print(f"Success! Generated {len(self.q_dict.keys())} Q polynomials in {stop_time - start_time} seconds.")
 
     def staircase(self, mom, dad):
@@ -71,19 +87,23 @@ class PolynomialGenerator():
         """To find a new, unseen q polynomial. Automatically adds the resulting polynomial to Q_dict and returns the coordinate p/q """
         # Q(alpha +2 gamma) = -dQ(gamma) Q (alpha) + ... =-(-1)^gamma[0] x^gamma[1] * Q(alpha) + ...
         p_q = self.array_add(alpha, self.multiply_by_constant(gamma, 2))
-        # if p_q[0]/p_q[1] > 0.5:
-        #     # don't bother adding polynomials above this symmetry
-        #     self.print(f"{p_q} exceeds 1/2. Skipping to save time, since it is symmetric to its mirror over 1/2.")
-        #     return None
-        self.print(f"Finding new polynomial {p_q} from alpha {alpha} and gamma {gamma}")
+        if p_q[0]/p_q[1] > 0.5:
+            # don't bother adding polynomials above this symmetry
+            # self.print(f"{p_q} exceeds 1/2. Skipping to save time, since it is symmetric to its mirror over 1/2.")
+            return None
+        # self.print(f"Finding new polynomial {p_q} from alpha {alpha} and gamma {gamma}")
         # first_term = np.concatenate(((-1)**(gamma[0]+1) * self.Q(alpha),np.zeros(gamma[1], dtype=int)))
         first_term = self.multiply_by_constant(self.Q(alpha),(-1)**(gamma[0]+1)) + [0]*gamma[1]
         second_term = self.poly_multiply(self.Q(self.array_add(alpha,gamma)), self.Q(gamma))
-        self.print(f"For {p_q}, We have first term {first_term} and second term {second_term}")
+        # self.print(f"For {p_q}, We have first term {first_term} and second term {second_term}")
         result = self.array_add(first_term,second_term)
-        self.print(f"For {p_q}, We have result {self.trim_zeros(result)}")
+        # self.print(f"For {p_q}, We have result {self.trim_zeros(result)}")
         # add the polynomial, and the fraction, to the relevant internal lists.
         self.q_dict[self.array_to_str(p_q)] = self.trim_zeros(result)
+        # add the corresponding gamma value
+        self.q_gammas[self.array_to_str(p_q)] = gamma
+        # add the number of steps to get to this polynomial
+        self.q_levels[self.array_to_str(p_q)] = self.q_levels[self.array_to_str(alpha)] + 1
         # if self.array_to_str(p_q) == self.array_to_str([1, 97]): # use this to track down parentage
         #     self.print(f"Finding new polynomial {p_q} from alpha {alpha} and gamma {gamma}")
         #     self.print(f"For {p_q}, We have first term {first_term} and second term {second_term}")
@@ -172,10 +192,15 @@ class PolynomialGenerator():
             if len(i) > max_len: max_len = len(i)
         # now cycle through the keys and update each value
         for key in self.q_dict.keys():
-            self.q_dict[key] = [0]*(max_len - len(self.q_dict[key])) + self.q_dict[key]
+            self.q_dict[key] = list(map(str,[0]*(max_len - len(self.q_dict[key])) + self.q_dict[key])) # converts to a string for more durable mapping (avoiding int to float conversions)
         # finally, create DF and save
-        df = pd.DataFrame(self.q_dict)
-        df.to_csv(self.out_file)
+        df = pd.DataFrame.from_dict(self.q_dict, dtype=str, orient='index', columns = list(range(max_len)))
+        df.to_csv(self.out_file+'.csv')
+        # save other dicts
+        df = pd.DataFrame.from_dict(self.q_levels,dtype=str,orient='index',columns=['#recursions'])
+        df.to_csv(self.out_file+'levels.csv')
+        df = pd.DataFrame.from_dict(self.q_gammas,dtype=str,orient='index',columns=['gamma p','gamma q'])
+        df.to_csv(self.out_file+'gammas.csv')
 if __name__ == "__main__":
-    max_denom = 1000
-    pg = PolynomialGenerator(max_integer=1, max_denominator=max_denom, out_file=f'data/q_to_denom_{max_denom}.csv')
+    max_denom = 200
+    pg = PolynomialGenerator(max_integer=1, max_denominator=max_denom, out_file=f'data/q_to_denom_{max_denom}')
