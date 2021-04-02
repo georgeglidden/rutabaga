@@ -11,28 +11,20 @@
         If you're seeing this, your browser does not support the Canvas object necessary for the Viewer client.
       </canvas>
       <div id="viewer-ui">
+
       <div>
     </div>
     <script type="text/javascript" src="viewer.js"></script>
-    <script type="text/javascript" src="glfx.js"></script>
     <script type="text/javascript">
 draw = function(context,img,square){
   const x = square[0];
   const y = square[1];
   const s = square[2];
   context.drawImage(img,x,y,s,s);
-  //imgData = context.getImageData(x,y,s,s);
-  //imgArray = imgData.data;
-  //// modify imgArray
-  //for(const [i,x] of imgArray.entries()) {
-  //  imgArray[i] = Math.floor(128 + x/2);
-  //}
-  //context.drawImage(ImageData(imgArray),x,y,s,s);
+  imgData = context.getImageData(x,y,s,s);
 };
-viewer = new Viewer("viewer", "http://localhost:8080", "zoomed_pyramid", null, draw, 1000);
-let inBounds = false;
-let relX = 0;
-let relY = 0;
+viewer = new Viewer("viewer", "http://localhost:8080", "pyramid", null, draw, 1000);
+console.log(viewer.view([10,100,10,100]));
 viewer.drawVisibleTiles();
 window.addEventListener("mousemove", function(e){
   const x = e.clientX;
@@ -40,21 +32,17 @@ window.addEventListener("mousemove", function(e){
   const relPos = viewer.getLocal(x,y);
   relX = relPos[0];
   relY = relPos[1];
-  inBounds = viewer.inBounds(relX,relY);
-  if(e.buttons%2 == 1){
+  if(e.buttons%2 == 1 && viewer.inBounds(relX,relY)){
     xvel = -e.movementX;
     yvel = -e.movementY;
     viewer.doPan(xvel,yvel);
     viewer.correctZoomRect();
     viewer.drawVisibleTiles();
-
   }
 });
 window.addEventListener("wheel", function(w){
   if(viewer.inBounds(relX,relY)){
     viewer.doZoom(relX,relY,-w.deltaY/50);
-    viewer.correctZoomRect();
-    viewer.drawVisibleTiles();
     const relPos = viewer.getLocal(w.clientX,w.clientY);
     const xvel = (-w.deltaY/Math.abs(w.deltaY)) * (relPos[0] - (viewer.width/2))/25;
     const yvel = (-w.deltaY/Math.abs(w.deltaY)) * (relPos[1] - (viewer.height/2))/25;

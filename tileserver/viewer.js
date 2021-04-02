@@ -28,10 +28,20 @@ class Viewer {
       initRect.bottom = this.height - 1;
     };
     this.zoomRect = initRect;
-    if(draw==null)
-      draw = function(context,img,square){context.drawImage(img,square[0],square[1],square[2],square[2])};
+    this.visibleImg = [];
+    if(draw==null){
+      draw = function(context,img,square){
+        context.drawImage(img,square[0],square[1],square[2],square[2]);
+      };
+    }
     this.draw = draw;
     console.log(`initialized Viewer ${viewerId} at ${this.rect.left},${this.rect.top}`);
+  }
+
+  view(rect=null) {
+    if(rect==null)
+      rect = [this.rect.left,this.rect.right,this.rect.top,this.rect.bottom];
+    return this.canvas.getContext('2d').getImageData(rect[0],rect[2],rect[1],rect[3]);
   }
 
   getLocal(x,y) {
@@ -121,8 +131,9 @@ class Viewer {
   drawVisibleTiles() {
     const z = this.getZ();
     const visible = this.getVisibleTiles(z);
-    const context = this.canvas.getContext("2d");
+    this.visibleImg = [];
     let draw = this.draw;
+    const context = this.canvas.getContext("2d");
     for(let i=0; i<visible.length; i+=1){
       const x = visible[i][0];
       const y = visible[i][1];
@@ -136,10 +147,22 @@ class Viewer {
         draw(context,tileImg,tileSquare);
       };
       tileImg.src = tileQuery;
+      this.visibleImg.push(tileImg);
     }
   }
 
+  nb_loading(){
+    var n = 0;
+    for(var img of this.visibleImg){
+      if(!img.complete)
+        n ++;
+    }
+    return n;
+  }
+
   doZoom(x,y,zvel) {
+    if(this.nb_loading() > 0)
+      return;
     x = (x/this.width)*this.getZoomXOffset() + this.zoomRect.left;
     y = (y/this.height)*this.getZoomYOffset() + this.zoomRect.top;
     this.zoom += zvel;
@@ -159,6 +182,8 @@ class Viewer {
   }
 
   doPan(xvel,yvel) {
+    if(this.nb_loading() > 0)
+      return;
     this.zoomRect.left += xvel/(2**this.zoom);
     this.zoomRect.right += xvel/(2**this.zoom);
     this.zoomRect.top += yvel/(2**this.zoom);
