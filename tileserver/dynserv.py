@@ -1,12 +1,21 @@
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from skimage.io import imsave
-import numpy as np
 import sys
-from os import path as os_path
+import io
 from json import load, dumps
+from os import path as os_path
+from http.server import HTTPServer, BaseHTTPRequestHandler
+
+import numpy as np
+from skimage.io import imsave
+from skimage.util import img_as_ubyte
+
 from Tile import TileQuery
 import ImplicitPyramid as impyr
 from PointSource import *
+
+def get_png_bytes(arr):
+    byte_io = io.BytesIO()
+    imsave(byte_io, img_as_ubyte(arr), format='PNG')
+    return byte_io.getvalue()
 
 class DynamicTileserver(BaseHTTPRequestHandler):
 
@@ -32,15 +41,10 @@ class DynamicTileserver(BaseHTTPRequestHandler):
                 opt = {'bright':True,'pq':riley,'threshold_pq':None}
                 print(opt)
                 tile = impyr.do_tile_query(pyr_label, tq, options=opt)
-                timg = tile.render()
-                #if bright:
-                #    dmap = dmap > 0
-                imsave('.tile_render.png', timg)
-                # self.send_response(200)
-                # self.send_header('Content-type', 'image/png')
-                # self.end_headers()
-                # self.wfile.write()
-                im_bytes = open('.tile_render.png', 'rb').read()
+                #timg = tile.render()
+                #imsave('.tile_render.png', timg)
+                #im_bytes = open('.tile_render.png', 'rb').read()
+                im_bytes = get_png_bytes(tile.render())
                 self.respond(im_bytes, headers=['Content-type', 'image/png'])
             elif request[1] == 'psq_meta':
                 pyr_label = request[2]
@@ -58,15 +62,9 @@ class DynamicTileserver(BaseHTTPRequestHandler):
             else:
                 requested_file = open(self.path[1:]).read()
                 print(self.path[1:],len(requested_file),requested_file[:50])
-                # self.send_response(200)
-                # self.end_headers()
-                # self.wfile.write(bytes(requested_file, 'utf-8'))
                 self.respond(bytes(requested_file, 'utf-8'))
         except Exception as e:
             generic_response = "File not found\n" + str(e)
-            # self.send_response(404)
-            # self.end_headers()
-            # self.wfile.write(bytes(file_to_open, 'utf-8'))
             self.respond(bytes(generic_response, 'utf-8'),code=404)
             raise e
 pyramid_points = []
