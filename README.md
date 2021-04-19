@@ -12,7 +12,7 @@ If you want more direct access to the data, the Jupyter notebooks in the top-lev
 - run the server to visualize the pattern of the roots:
   1. Update the repository to the latest version with git pull
   2. On a command line, cd into the tileserver directory (or open up the directory in PyCharm)
-  3. Run python dynserve.py. (Or run the "dynserv.py" file from within PyCharm)
+  3. Run python dynserv.py. (Or run the "dynserv.py" file from within PyCharm)
   4. Open the file called "demoClient.html" with a web-browser (it's also in the tileserver directory of the repository; just click on it, and the webpage should come up.)
   It really looks marvelous.
 
