@@ -51,3 +51,4 @@ This project makes use of the following libraries:
 * serve queries for tile and pyramid metadata
 * try webASM implementations of the root-finder
 - DeepNote publishing of notebooks.
+- Add R Shiny interactive website workflow
