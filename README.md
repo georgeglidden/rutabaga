@@ -15,6 +15,9 @@ If you want more direct access to the data, the Jupyter notebooks in the top-lev
   3. Run python dynserv.py. (Or run the "dynserv.py" file from within PyCharm)
   4. Open the file called "demoClient.html" with a web-browser (it's also in the tileserver directory of the repository; just click on it, and the webpage should come up.)
   It really looks marvelous.
+  
+### R Shiny Workflow
+- 
 
 
 ### Attributions and Further Reading:
@@ -51,3 +54,4 @@ This project makes use of the following libraries:
 * serve queries for tile and pyramid metadata
 * try webASM implementations of the root-finder
 - DeepNote publishing of notebooks.
+- Add R Shiny interactive website workflow
