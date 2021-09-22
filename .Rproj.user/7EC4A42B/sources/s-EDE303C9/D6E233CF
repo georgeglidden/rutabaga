@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1632346084230.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "30390627",
+    "id" : "D6E233CF",
+    "lastKnownWriteTime" : 1632346188,
+    "last_content_update" : 1632346188569,
+    "path" : "~/GitHub/rutabaga/ui.R",
+    "project_path" : "ui.R",
+    "properties" : {
+        "cursorPosition" : "29,1",
+        "scrollLine" : "7",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

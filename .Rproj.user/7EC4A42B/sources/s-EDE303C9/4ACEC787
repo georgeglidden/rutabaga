@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1632346100792.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1472777764",
+    "id" : "4ACEC787",
+    "lastKnownWriteTime" : 1632347754,
+    "last_content_update" : 1632347754106,
+    "path" : "~/GitHub/rutabaga/server.R",
+    "project_path" : "server.R",
+    "properties" : {
+        "cursorPosition" : "13,2",
+        "scrollLine" : "0",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
